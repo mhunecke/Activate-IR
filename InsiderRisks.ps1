@@ -1,11 +1,13 @@
 <#
  .Synopsis
-  Pre-configuration for Activate Microsoft 365 Security and Compliance : Purview Manage Insider Risks
+  Pre-configuration for the following titles:
+    1) Activate Microsoft 365 Security and Compliance : Purview Manage Insider Risks
+    2) WorkshopPLUS: Microsoft 365 Security and Compliance – Microsoft Purview
 
  .Description
-  Displays a visual representation of a calendar. This function supports multiple months
-  and lets you highlight specific date ranges or days.
+  Prepare the required configuration for some Microsoft Premier offerings.
 
+ .Description
     ##################################################################################################
     # This sample script is not supported under any Microsoft standard support program or service.   #
     # This sample script is provided AS IS without warranty of any kind.                             #
@@ -22,13 +24,12 @@
 
 Param (
     [CmdletBinding()]
-    [switch]$debug,
-    [switch]$InsiderRisksOnly
+    [switch]$debug
 )
 
-# -----------------------------------------------------------
+#------------------------------------------------------------
 # Write the log
-# -----------------------------------------------------------
+#------------------------------------------------------------
 function logWrite([int]$phase, [bool]$result, [string]$logstring)
 {
     if ($result)
@@ -42,9 +43,9 @@ function logWrite([int]$phase, [bool]$result, [string]$logstring)
         }
 }
 
-# -----------------------------------------------------------
+#------------------------------------------------------------
 # Start the Recovery steps
-# -----------------------------------------------------------
+#------------------------------------------------------------
 function Recovery
 {
     Write-host "Starting Recovery..."
@@ -83,9 +84,27 @@ function Recovery
                 }
 }
 
-# -----------------------------------------------------------
+#--------------------------------------------------------
+# Exit function
+#--------------------------------------------------------
+function exitScript
+{
+    # Get-PSSession | Remove-PSSession
+    if ($debug)
+        {
+            $DebugPreference = $oldDebugPreference
+            Stop-Transcript
+        }
+    exit
+}
+
+#######################################################################################
+#########                   I N I T I A L I Z A T I O N                      ##########
+#######################################################################################
+
+#------------------------------------------------------------
 # Test the log path (Step 0)
-# -----------------------------------------------------------
+#------------------------------------------------------------
 function Initialization
 {
     $pathExists = Test-Path($LogPath)
@@ -98,9 +117,9 @@ function Initialization
         logWrite 0 $true "Initialization completed"
 }
 
-# -----------------------------------------------------------
+#------------------------------------------------------------
 # Connect to AzureAD (Step 1)
-# -----------------------------------------------------------
+#------------------------------------------------------------
 function ConnectAzureAD
 {
     try 
@@ -142,9 +161,9 @@ function ConnectAzureAD
     }
 }
 
-# -----------------------------------------------------------
+#------------------------------------------------------------
 # Connect to Microsoft Online (Step 2)
-# -----------------------------------------------------------
+#------------------------------------------------------------
 function ConnectMsol
 {
     try 
@@ -186,13 +205,14 @@ function ConnectMsol
             }
 }
 
-# -------------------------------------------------------
-# Download Workshop Script (Step 3)
-# -------------------------------------------------------
+#--------------------------------------------------------
+# Download script (Step 3)
+#--------------------------------------------------------
 function DownloadScripts
 {
     try
         {
+            #ref.:https://docs.microsoft.com/en-us/microsoft-365/compliance/import-hr-data?view=o365-worldwide#step-4-run-the-sample-script-to-upload-your-hr-data
             write-Debug "Invoke-WebRequest -Uri https://raw.githubusercontent.com/microsoft/m365-compliance-connector-sample-scripts/master/sample_script.ps1 -OutFile $($LogPath)upload_termination_records.ps1 -ErrorAction Stop"
             Invoke-WebRequest -Uri https://raw.githubusercontent.com/microsoft/m365-compliance-connector-sample-scripts/master/sample_script.ps1 -OutFile "$($LogPath)upload_termination_records.ps1" -ErrorAction Stop
         } 
@@ -204,20 +224,19 @@ function DownloadScripts
             }
     if($global:Recovery -eq $false)
         {
-            logWrite 3 $True "Successfully downloaded the script."
+            logWrite 3 $True "Successfully downloaded the script from GitHub."
             $global:nextPhase++
             Write-Debug "nextPhase set to $global:nextPhase"
         }
 }       
 
-
 #######################################################################################
 #########                    I N S I D E R     R I S K S                     ##########
 #######################################################################################
 
-# -------------------------------------------------------
+#--------------------------------------------------------
 # InsiderRisks - Create an Azure App (Step 4)
-# -------------------------------------------------------
+#--------------------------------------------------------
 function InsiderRisks_CreateAzureApp
 {
     try
@@ -259,9 +278,9 @@ function InsiderRisks_CreateAzureApp
         }
 }
 
-# -------------------------------------------------------
+#--------------------------------------------------------
 # InsiderRisks - Create the CSV file (Step 5)
-# -------------------------------------------------------
+#--------------------------------------------------------
 function InsiderRisks_CreateCSVFile
 {
     $CurrentPath = Get-Location
@@ -343,9 +362,9 @@ function InsiderRisks_CreateCSVFile
         }
 }
 
-# -------------------------------------------------------
+#--------------------------------------------------------
 # InsiderRisks - Upload CSV file (Step 6)
-# -------------------------------------------------------
+#--------------------------------------------------------
 function InsiderRisks_UploadCSV
 {
 
@@ -387,35 +406,21 @@ function InsiderRisks_UploadCSV
         }
 }
 
-# -------------------------------------------------------
-# Exit function
-# -------------------------------------------------------
-function exitScript
-{
-    # Get-PSSession | Remove-PSSession
-    if ($debug)
-        {
-            $DebugPreference = $oldDebugPreference
-            Stop-Transcript
-        }
-    exit
-}
+#######################################################################################
+#########            S C R I P T    S T A R T S   H E R E                    ##########
+#######################################################################################
 
-# -------------------------------------------------------
-#        Script starts HERE
-# -------------------------------------------------------
-
-# -------------------------------------------------------
+#--------------------------------------------------------
 # Variable definition - General
-# -------------------------------------------------------
+#--------------------------------------------------------
 $LogPath = "$env:UserProfile\Desktop\SCLabFiles\Scripts\"
 $LogCSV = "$env:UserProfile\Desktop\SCLabFiles\Scripts\InsiderRisks_Log.csv"
 $global:nextPhase = 1
 $global:Recovery = $false
 
-# -----------------------------------------------------------
+#------------------------------------------------------------
 # Debug mode
-# -----------------------------------------------------------
+#------------------------------------------------------------
 $oldDebugPreference = $DebugPreference
 if($debug)
 {
@@ -443,9 +448,9 @@ if(!(Test-Path($logCSV)))
                 InsiderRisks_UploadCSV
             }
 
-# -------------------------------------------------------
+#--------------------------------------------------------
 # use variable to control phases
-# -------------------------------------------------------
+#--------------------------------------------------------
 if($nextPhase -eq 1)
     {
         write-debug "Phase $nextPhase"
