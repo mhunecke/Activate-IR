@@ -126,6 +126,7 @@ function ConnectAzureAD
         {
             Write-Debug "Get-AzureADDirectoryRole -ErrorAction stop"
             $testConnection = Get-AzureADDirectoryRole -ErrorAction stop | Out-Null #if true (Already Connected)
+            $global:Recovery = $false
         }
         catch
             {
@@ -134,6 +135,7 @@ function ConnectAzureAD
                         write-Debug $error[0].Exception
                         Write-Host "Connecting to Azure AD..."
                         Connect-AzureAD -ErrorAction stop | Out-Null
+                        $global:Recovery = $false
                     }
                     catch    
                         {
@@ -171,6 +173,7 @@ function ConnectMsol
     {
         Write-Debug "Get-MSOLCompanyInformation -ErrorAction stop"
         $testConnection = Get-MSOLCompanyInformation -ErrorAction stop | Out-Null #if true (Already Connected)
+        $global:Recovery = $false
     }
     catch
         {
@@ -179,6 +182,7 @@ function ConnectMsol
                     write-Debug $error[0].Exception
                     Write-Host "Connecting to Microsoft Online..."
                     Connect-MSOLService -ErrorAction stop | Out-Null
+                    $global:Recovery = $false
                 }
                 catch    
                     {
@@ -203,7 +207,7 @@ function ConnectMsol
             {
                 logWrite 2 $true "Successfully connected to Microsoft Online."
                 $global:nextPhase++
-               Write-Debug "nextPhase set to $global:nextPhase"
+                Write-Debug "nextPhase set to $global:nextPhase"
             }
 }
 
@@ -390,7 +394,7 @@ function InsiderRisks_UploadCSV
             write-host "##########################################################################################" -ForegroundColor Green
             write-host "##                                                                                      ##" -ForegroundColor Green
             write-host "##     WorkshopPLUS: Microsoft 365 Security and Compliance - Microsoft Purview  and     ##" -ForegroundColor Green
-           write-host "##     Activate Microsoft 365 Security and Compliance: Purview Manage Insider Risks     ##" -ForegroundColor Green
+            write-host "##     Activate Microsoft 365 Security and Compliance: Purview Manage Insider Risks     ##" -ForegroundColor Green
             write-host "##                                                                                      ##" -ForegroundColor Green            
             write-host "##   App ID    : $global:appid                                   ##" -ForegroundColor Green
             write-host "##   Tenant ID : $global:tenantid                                   ##" -ForegroundColor Green
