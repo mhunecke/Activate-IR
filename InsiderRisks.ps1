@@ -18,47 +18,11 @@
     # or other pecuniary loss) arising out of the use of or inability to use the sample script or    #
     # documentation, even if Microsoft has been advised of the possibility of such damages.          #
     ##################################################################################################
-
- .Parameter Start
-  The first month to display.
-
- .Parameter End
-  The last month to display.
-
- .Parameter FirstDayOfWeek
-  The day of the month on which the week begins.
-
- .Parameter HighlightDay
-  Specific days (numbered) to highlight. Used for date ranges like (25..31).
-  Date ranges are specified by the Windows PowerShell range syntax. These dates are
-  enclosed in square brackets.
-
- .Parameter HighlightDate
-  Specific days (named) to highlight. These dates are surrounded by asterisks.
-
- .Example
-   # Show a default display of this month.
-   Show-Calendar
-
- .Example
-   # Display a date range.
-   Show-Calendar -Start "March, 2010" -End "May, 2010"
-
- .Example
-   # Highlight a range of days.
-   Show-Calendar -HighlightDay (1..10 + 22) -HighlightDate "December 25, 2008"
 #>
-
-##
-## New-ModuleManifest -Path .\Scripts\TestModule.psd1 -Author 'Marcelo Hunecke' -CompanyName 'Microsoft' -RootModule 'WorkshopSnC.psm1' -FunctionsToExport @('Get-RegistryKey','Set-RegistryKey') -Description 'This is a Workshop Security and Compliance module.'
-##
 
 Param (
     [CmdletBinding()]
     [switch]$debug,
-    [switch]$SkipSensitivityLabels,
-    [switch]$SkipRetentionPolicies,
-    [switch]$SkipDLP,
     [switch]$InsiderRisksOnly
 )
 
@@ -79,25 +43,13 @@ function logWrite([int]$phase, [bool]$result, [string]$logstring)
 }
 
 # -----------------------------------------------------------
-# Sleep x seconds
+# Start the Recovery steps
 # -----------------------------------------------------------
-function goToSleep ([int]$seconds){
-    for ($i = 1; $i -le $seconds; $i++ )
-    {
-        $p = ([Math]::Round($i/$seconds, 2) * 100)
-        Write-Progress -Activity "Allowing time for the creation on backend..." -Status "$p% Complete:" -PercentComplete $p
-        Start-Sleep -Seconds 1
-    }
-}
-
-# -----------------------------------------------------------
-# Start the recovery steps
-# -----------------------------------------------------------
-function recovery
+function Recovery
 {
-    Write-host "Starting recovery..."
+    Write-host "Starting Recovery..."
     Set-Location -Path $LogPath
-    $global:recovery = $true
+    $global:Recovery = $true
     $savedLog = Import-Csv $LogCSV
     $lastEntry = (($savedLog.Count) - 1)
     Write-Debug "Last Entry #: $lastEntry"
@@ -131,11 +83,10 @@ function recovery
                 }
 }
 
-
 # -----------------------------------------------------------
 # Test the log path (Step 0)
 # -----------------------------------------------------------
-function initialization
+function Initialization
 {
     $pathExists = Test-Path($LogPath)
     if (!$pathExists)
@@ -183,19 +134,12 @@ function ConnectAzureAD
                        
                         }
             }
-    if($global:recovery -eq $false)
-        {
-            logWrite 1 $true "Successfully connected to Azure AD."
-            if ($InsiderRisksOnly -eq $true)
-            {
-                $global:nextPhase = 41
-            }
-            else 
-                {
-                    $global:nextPhase++
-                }
-            Write-Debug "nextPhase set to $global:nextPhase"
-        }
+    if($global:Recovery -eq $false)
+    {
+        logWrite 1 $true "Successfully connected to Azure AD."
+        $global:nextPhase++
+        Write-Debug "nextPhase set to $global:nextPhase"
+    }
 }
 
 # -----------------------------------------------------------
@@ -234,49 +178,33 @@ function ConnectMsol
                    
                     }
         }
-        if($global:recovery -eq $false)
+        if($global:Recovery -eq $false)
             {
-                logWrite 2 $true "Successfully connected to Microsoft Online"
+                logWrite 2 $true "Successfully connected to Microsoft Online."
                 $global:nextPhase++
                 Write-Debug "nextPhase set to $global:nextPhase"
             }
 }
 
 # -------------------------------------------------------
-# Download Workshop Script (Step 9)
+# Download Workshop Script (Step 3)
 # -------------------------------------------------------
-function downloadscripts
+function DownloadScripts
 {
     try
         {
-            #General scripts
-            Invoke-WebRequest -Uri https://raw.githubusercontent.com/microsoft/WKSPlus-M365SCC/main/Compliance%20Center/Update-Hub.ps1 -OutFile "$($LogPath)Update-Hub.ps1" -ErrorAction Stop
-            #Labels scritp
-            Write-Debug "Invoke-WebRequest -Uri https://raw.githubusercontent.com/microsoft/WKSPlus-M365SCC/main/Compliance%20Center/wks-new-label.ps1 -OutFile $($LogPath)wks-new-label.ps1 -ErrorAction Stop"
-            Invoke-WebRequest -Uri https://raw.githubusercontent.com/microsoft/WKSPlus-M365SCC/main/Compliance%20Center/wks-new-label.ps1 -OutFile "$($LogPath)wks-new-label.ps1" -ErrorAction Stop
-            #DLP Script
-            Write-Debug "Invoke-WebRequest -Uri https://raw.githubusercontent.com/microsoft/WKSPlus-M365SCC/main/Compliance%20Center/wks-new-DLP.ps1 -OutFile $($LogPath)wks-new-DLP.ps1 -ErrorAction Stop"
-            Invoke-WebRequest -Uri https://raw.githubusercontent.com/microsoft/WKSPlus-M365SCC/main/Compliance%20Center/wks-new-DLP.ps1 -OutFile "$($LogPath)wks-new-DLP.ps1" -ErrorAction Stop
-            #Retention script
-            Write-Debug "Invoke-WebRequest -Uri https://raw.githubusercontent.com/microsoft/WKSPlus-M365SCC/main/Compliance%20Center/wks-new-retention.ps1 -OutFile $($LogPath)wks-new-retention.ps1 -ErrorAction Stop"
-            Invoke-WebRequest -Uri https://raw.githubusercontent.com/microsoft/WKSPlus-M365SCC/main/Compliance%20Center/wks-new-retention.ps1 -OutFile "$($LogPath)wks-new-retention.ps1" -ErrorAction Stop
-            #InsiderRisk scripts
-            Write-Debug "Invoke-WebRequest -Uri https://raw.githubusercontent.com/microsoft/WKSPlus-M365SCC/main/Compliance%20Center/wks-new-HRConnector.ps1 -OutFile $($LogPath)wks-new-HRConnector.ps1 -ErrorAction Stop"
-            Invoke-WebRequest -Uri https://raw.githubusercontent.com/microsoft/WKSPlus-M365SCC/main/Compliance%20Center/wks-new-HRConnector.ps1 -OutFile "$($LogPath)wks-new-HRConnector.ps1" -ErrorAction Stop
             write-Debug "Invoke-WebRequest -Uri https://raw.githubusercontent.com/microsoft/m365-compliance-connector-sample-scripts/master/sample_script.ps1 -OutFile $($LogPath)upload_termination_records.ps1 -ErrorAction Stop"
             Invoke-WebRequest -Uri https://raw.githubusercontent.com/microsoft/m365-compliance-connector-sample-scripts/master/sample_script.ps1 -OutFile "$($LogPath)upload_termination_records.ps1" -ErrorAction Stop
-            #_OLD script version # Write-Debug "Invoke-WebRequest -Uri https://raw.githubusercontent.com/microsoft/m365-hrconnector-sample-scripts/master/upload_termination_records.ps1 -OutFile $($LogPath)upload_termination_records.ps1 -ErrorAction Stop"
-            #_OLD script version #Invoke-WebRequest -Uri https://raw.githubusercontent.com/microsoft/m365-hrconnector-sample-scripts/master/upload_termination_records.ps1 -OutFile "$($LogPath)upload_termination_records.ps1" -ErrorAction Stop
         } 
         catch 
             {
                 write-Debug $error[0].Exception
-                logWrite 3 $false "Unable to download the workshop scripts from GitHub! Exiting."
+                logWrite 3 $false "Unable to download the script from GitHub! Exiting."
                 exitScript
             }
-    if($global:recovery -eq $false)
+    if($global:Recovery -eq $false)
         {
-            logWrite 3 $True "Successfully downloaded the workshop scripts."
+            logWrite 3 $True "Successfully downloaded the script."
             $global:nextPhase++
             Write-Debug "nextPhase set to $global:nextPhase"
         }
@@ -288,7 +216,7 @@ function downloadscripts
 #######################################################################################
 
 # -------------------------------------------------------
-# InsiderRisks - Create an Azure App (Step 41)
+# InsiderRisks - Create an Azure App (Step 4)
 # -------------------------------------------------------
 function InsiderRisks_CreateAzureApp
 {
@@ -320,10 +248,10 @@ function InsiderRisks_CreateAzureApp
         catch 
         {
             write-Debug $error[0].Exception
-            logWrite 4 $false "Error creating the Azure App for HR Connector"
+            logWrite 4 $false "Error creating the Azure App for HR Connector."
             exitScript
         }
-    if($global:recovery -eq $false)
+    if($global:Recovery -eq $false)
         {
             logWrite 4 $True "Successfully created the Azure App for HR Connector."
             $global:nextPhase++
@@ -332,7 +260,7 @@ function InsiderRisks_CreateAzureApp
 }
 
 # -------------------------------------------------------
-# InsiderRisks - Create the CSV file (Step 42)
+# InsiderRisks - Create the CSV file (Step 5)
 # -------------------------------------------------------
 function InsiderRisks_CreateCSVFile
 {
@@ -404,10 +332,10 @@ function InsiderRisks_CreateCSVFile
         catch 
         {
             write-Debug $error[0].Exception
-            logWrite 5 $false "Error creating the HRConnector.csv file"
+            logWrite 5 $false "Error creating the HRConnector.csv file."
             exitScript
         }
-    if($global:recovery -eq $false)
+    if($global:Recovery -eq $false)
         {
             logWrite 5 $True "Successfully created the HRConnector.csv file."
             $global:nextPhase++
@@ -416,7 +344,7 @@ function InsiderRisks_CreateCSVFile
 }
 
 # -------------------------------------------------------
-# InsiderRisks - Upload CSV file (Step 43)
+# InsiderRisks - Upload CSV file (Step 6)
 # -------------------------------------------------------
 function InsiderRisks_UploadCSV
 {
@@ -451,7 +379,7 @@ function InsiderRisks_UploadCSV
             logWrite 6 $false "Error uploading the HRConnector.csv file"
             exitScript
         }
-    if($global:recovery -eq $false)
+    if($global:Recovery -eq $false)
         {
             logWrite 6 $True "Successfully creating the HRConnector.csv file."
             $global:nextPhase++
@@ -474,7 +402,7 @@ function exitScript
 }
 
 # -------------------------------------------------------
-# FUNCTION - Start-SnCCompliance
+#        Script starts HERE
 # -------------------------------------------------------
 
 # -------------------------------------------------------
@@ -483,7 +411,7 @@ function exitScript
 $LogPath = "$env:UserProfile\Desktop\SCLabFiles\Scripts\"
 $LogCSV = "$env:UserProfile\Desktop\SCLabFiles\Scripts\InsiderRisks_Log.csv"
 $global:nextPhase = 1
-$global:recovery = $false
+$global:Recovery = $false
 
 # -----------------------------------------------------------
 # Debug mode
@@ -498,23 +426,21 @@ if($debug)
 
 if(!(Test-Path($logCSV)))
     {
-        # if log doesn't exist then must be first time we run this, so go to initialization
+        # if log doesn't exist then must be first time we run this, so go to initialization function
         Write-Debug "Entering Initialization"
-        initialization
+        Initialization
     } 
         else 
             {
                 # if log already exists, check if we need to recover
                 Write-Debug "Entering Recovery"
-                recovery
+                Recovery
                 ConnectAzureAD
                 ConnectMSOL
-                ConnectEXO
-                ConnectSCC
-                ConnectTeams
-                $tenantName = GetDomain
-                Write-Debug "$tenantName Returned"
-                ConnectSPO $tenantName
+                DownloadScripts
+                InsiderRisks_CreateAzureApp
+                InsiderRisks_CreateCSVFile
+                InsiderRisks_UploadCSV
             }
 
 # -------------------------------------------------------
@@ -535,7 +461,7 @@ if($nextPhase -eq 2)
 if($nextPhase -eq 3)
     {
         write-debug "Phase $nextPhase"
-        downloadscripts
+        DownloadScripts
     }
 
 if($nextPhase -eq 4)
@@ -558,4 +484,4 @@ if($nextPhase -eq 6)
         InsiderRisks_UploadCSV
     }
 
-write-host "Configurarion completed"
+write-host "Configuration completed"
