@@ -1,13 +1,13 @@
 <#
- .Synopsis
+.Synopsis
   Pre-configuration for the following titles:
-    1) Activate Microsoft 365 Security and Compliance : Purview Manage Insider Risks
-    2) WorkshopPLUS: Microsoft 365 Security and Compliance – Microsoft Purview
+    1) Activate Microsoft 365 Security and Compliance: Purview Manage Insider Risks
+    2) WorkshopPLUS: Microsoft 365 Security and Compliance - Microsoft Purview
 
- .Description
+.Description
   Prepare the required configuration for some Microsoft Premier offerings.
 
- .Description
+.Description
     ##################################################################################################
     # This sample script is not supported under any Microsoft standard support program or service.   #
     # This sample script is provided AS IS without warranty of any kind.                             #
@@ -65,7 +65,7 @@ function Recovery
         {
             if ($lastEntryPhase -eq $savedLog[$lastEntry2].Phase)
                 {
-                    WriteHost -ForegroundColor Red "The script has failed at Phase $lastEntryPhase repeatedly.  PLease check with your instructor."
+                    WriteHost -ForegroundColor Red "The script has failed at Phase $lastEntryPhase repeatedly.  Please check with your instructor."
                     exitScript
                 }
                 else 
@@ -143,6 +143,7 @@ function ConnectAzureAD
                                     Write-Host "Installing Azure AD PowerShell Module..."
                                     Install-Module AzureAD -Force -AllowClobber
                                     Connect-AzureAD -ErrorAction stop | Out-Null
+                                    $global:Recovery = $false
                                 }
                                 catch
                                     {
@@ -187,6 +188,7 @@ function ConnectMsol
                                 Write-Host "Installing Microsoft Online PowerShell Module..."
                                 Install-Module MSOnline -Force -AllowClobber -ErrorAction stop | Out-Null
                                 Connect-MSOLService -ErrorAction stop | Out-Null
+                                $global:Recovery = $false
                             }
                             catch
                                 {
@@ -201,7 +203,7 @@ function ConnectMsol
             {
                 logWrite 2 $true "Successfully connected to Microsoft Online."
                 $global:nextPhase++
-                Write-Debug "nextPhase set to $global:nextPhase"
+               Write-Debug "nextPhase set to $global:nextPhase"
             }
 }
 
@@ -215,6 +217,7 @@ function DownloadScripts
             #ref.:https://docs.microsoft.com/en-us/microsoft-365/compliance/import-hr-data?view=o365-worldwide#step-4-run-the-sample-script-to-upload-your-hr-data
             write-Debug "Invoke-WebRequest -Uri https://raw.githubusercontent.com/microsoft/m365-compliance-connector-sample-scripts/master/sample_script.ps1 -OutFile $($LogPath)upload_termination_records.ps1 -ErrorAction Stop"
             Invoke-WebRequest -Uri https://raw.githubusercontent.com/microsoft/m365-compliance-connector-sample-scripts/master/sample_script.ps1 -OutFile "$($LogPath)upload_termination_records.ps1" -ErrorAction Stop
+            $global:Recovery = $false
         } 
         catch 
             {
@@ -222,6 +225,7 @@ function DownloadScripts
                 logWrite 3 $false "Unable to download the script from GitHub! Exiting."
                 exitScript
             }
+
     if($global:Recovery -eq $false)
         {
             logWrite 3 $True "Successfully downloaded the script from GitHub."
@@ -249,20 +253,23 @@ function InsiderRisks_CreateAzureApp
             $AzureSecret = New-AzureADApplicationPasswordCredential -CustomKeyIdentifier PrimarySecret -ObjectId $azureADAppReg.ObjectId -EndDate ((Get-Date).AddMonths(6)) -ErrorAction Stop
             $global:Secret = $AzureSecret.value
 
-            write-host "##################################################################" -ForegroundColor Green
-            write-host "##                                                              ##" -ForegroundColor Green
-            write-host "##   Microsoft 365 Security and Compliance: Compliance Center   ##" -ForegroundColor Green
-            write-host "##                                                              ##" -ForegroundColor Green
-            write-host "##   App name  : $appname                                    ##" -ForegroundColor Green
-            write-host "##   App ID    : $global:appid           ##" -ForegroundColor Green
-            write-host "##   Tenant ID : $global:tenantid           ##" -ForegroundColor Green
-            write-host "##   App Secret: $global:secret   ##" -ForegroundColor Green
-            write-host "##                                                              ##" -ForegroundColor Green
-            write-host "##################################################################" -ForegroundColor Green
+            write-host
+            write-host "##########################################################################################" -ForegroundColor Green
+            write-host "##                                                                                      ##" -ForegroundColor Green
+            write-host "##     WorkshopPLUS: Microsoft 365 Security and Compliance - Microsoft Purview  and     ##" -ForegroundColor Green
+            write-host "##     Activate Microsoft 365 Security and Compliance: Purview Manage Insider Risks     ##" -ForegroundColor Green
+            write-host "##                                                                                      ##" -ForegroundColor Green            
+            write-host "##   App name  : $appname                                                            ##" -ForegroundColor Green
+            write-host "##   App ID    : $global:appid                                   ##" -ForegroundColor Green
+            write-host "##   Tenant ID : $global:tenantid                                   ##" -ForegroundColor Green
+            write-host "##   App Secret: $global:secret                           ##" -ForegroundColor Green
+            write-host "##                                                                                      ##" -ForegroundColor Green
+            write-host "##########################################################################################" -ForegroundColor Green
             write-host
             Write-host "Return to the lab instructions" -ForegroundColor Yellow
             Write-host "When requested, press ENTER to continue." -ForegroundColor Yellow
             write-host
+            $global:Recovery = $false
         }
         catch 
         {
@@ -284,13 +291,16 @@ function InsiderRisks_CreateAzureApp
 function InsiderRisks_CreateCSVFile
 {
     $CurrentPath = Get-Location
-    write-host "##################################################################" -ForegroundColor Green
-    write-host "##                                                              ##" -ForegroundColor Green
-    write-host "##   Microsoft 365 Security and Compliance: Compliance Center   ##" -ForegroundColor Green
-    write-host "##                                                              ##" -ForegroundColor Green
-    write-host "##   The CSV file was created on $CurrentPath\wks-new-HRConnector.csv" -ForegroundColor Green
-    write-host "##                                                              ##" -ForegroundColor Green
-    write-host "##################################################################" -ForegroundColor Green
+    write-host
+    write-host "##########################################################################################" -ForegroundColor Green
+    write-host "##                                                                                      ##" -ForegroundColor Green
+    write-host "##     WorkshopPLUS: Microsoft 365 Security and Compliance - Microsoft Purview  and     ##" -ForegroundColor Green
+    write-host "##     Activate Microsoft 365 Security and Compliance: Purview Manage Insider Risks     ##" -ForegroundColor Green
+    write-host "##                                                                                      ##" -ForegroundColor Green            
+    write-host "##   The CSV file was created on:                                                       ##" -ForegroundColor Green
+    write-host "##   $CurrentPath\wks-new-HRConnector.csv       ##" -ForegroundColor Green
+    write-host "##                                                                                      ##" -ForegroundColor Green
+    write-host "##########################################################################################" -ForegroundColor Green
     write-host
     Write-host "Return to the lab instructions" -ForegroundColor Yellow
     Write-host "When requested, press ENTER to continue." -ForegroundColor Yellow
@@ -346,6 +356,7 @@ function InsiderRisks_CreateCSVFile
                     "Job level changes,$EmailAddress,,,$EffectiveDate,$YearsOnLevel,Level $OldLevel,Level $NewLevel" | out-file $HRConnectorCSVFile -Encoding utf8 -Append -ErrorAction Stop
                     "Performance review,$EmailAddress,,,$EffectiveDate,,,,$PerformanceRemarks,$PerformanceRating" | out-file $HRConnectorCSVFile -Encoding utf8 -Append -ErrorAction Stop
                     "Performance improvement plan,$EmailAddress,,,$EffectiveDate,,,,,,$ImprovementRemarks,$ImprovementRating,"  | out-file $HRConnectorCSVFile -Encoding utf8 -Append -ErrorAction Stop
+                    $global:Recovery = $false
                 }
         }
         catch 
@@ -376,21 +387,23 @@ function InsiderRisks_UploadCSV
                     $ConnectorJobID = Read-Host "Paste the Connector job ID"
                 }
             Write-Host
-            write-host "##################################################################" -ForegroundColor Green
-            write-host "##                                                              ##" -ForegroundColor Green
-            write-host "##   Microsoft 365 Security and Compliance: Compliance Center   ##" -ForegroundColor Green
-            write-host "##                                                              ##" -ForegroundColor Green
-            write-host "##   App ID    : $global:appid           ##" -ForegroundColor Green
-            write-host "##   Tenant ID : $global:tenantid           ##" -ForegroundColor Green
-            write-host "##   App Secret: $global:secret   ##" -ForegroundColor Green
-            write-host "##   JobId     : $ConnectorJobID           ##" -ForegroundColor Green
-            write-host "##   CSV File  : $global:HRConnectorCSVFile           " -ForegroundColor Green
-            write-host "##                                                              ##" -ForegroundColor Green
-            write-host "##################################################################" -ForegroundColor Green
+            write-host "##########################################################################################" -ForegroundColor Green
+            write-host "##                                                                                      ##" -ForegroundColor Green
+            write-host "##     WorkshopPLUS: Microsoft 365 Security and Compliance - Microsoft Purview  and     ##" -ForegroundColor Green
+           write-host "##     Activate Microsoft 365 Security and Compliance: Purview Manage Insider Risks     ##" -ForegroundColor Green
+            write-host "##                                                                                      ##" -ForegroundColor Green            
+            write-host "##   App ID    : $global:appid                                   ##" -ForegroundColor Green
+            write-host "##   Tenant ID : $global:tenantid                                   ##" -ForegroundColor Green
+            write-host "##   App Secret: $global:secret                           ##" -ForegroundColor Green
+            write-host "##   JobId     : $ConnectorJobID                                   ##" -ForegroundColor Green
+            write-host "##   CSV File  : $global:HRConnectorCSVFile   ##" -ForegroundColor Green
+            write-host "##                                                                                      ##" -ForegroundColor Green
+            write-host "##########################################################################################" -ForegroundColor Green
             Write-Host
 
             Set-Location -Path "$env:UserProfile\Desktop\SCLabFiles\Scripts"
             .\upload_termination_records.ps1 -tenantId $tenantId -appId $appId -appSecret $Secret -jobId $ConnectorJobID -FilePath $HRConnectorCSVFile
+            $global:Recovery = $false
         }
         catch 
         {
@@ -440,12 +453,21 @@ if(!(Test-Path($logCSV)))
                 # if log already exists, check if we need to recover
                 Write-Debug "Entering Recovery"
                 Recovery
+                write-host $nextPhase
                 ConnectAzureAD
+                write-host $nextPhase
                 ConnectMSOL
+                write-host $nextPhase
                 DownloadScripts
+                write-host $nextPhase
                 InsiderRisks_CreateAzureApp
+                $answer = Read-Host "Press ENTER to continue"
+                write-host $nextPhase
                 InsiderRisks_CreateCSVFile
+                $answer = Read-Host "Press ENTER to continue"
+                write-host $nextPhase
                 InsiderRisks_UploadCSV
+                write-host $nextPhase
             }
 
 #--------------------------------------------------------
@@ -489,4 +511,4 @@ if($nextPhase -eq 6)
         InsiderRisks_UploadCSV
     }
 
-write-host "Configuration completed"
+write-host "Configuration completed" 
