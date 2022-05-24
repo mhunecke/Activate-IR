@@ -337,10 +337,10 @@ function InsiderRisks_CreateAzureApp
                     $AzureADAppReg = New-AzureADApplication -DisplayName HRConnector -AvailableToOtherTenants $false -ErrorAction Stop
                     $appname = $AzureADAppReg.DisplayName
                     $global:appid = $AzureADAppReg.AppID
-                    $AzureTenantID = Get-AzureADTenantDetail
-                    $global:tenantid = $AzureTenantID.ObjectId
-                    $AzureSecret = New-AzureADApplicationPasswordCredential -CustomKeyIdentifier PrimarySecret -ObjectId $azureADAppReg.ObjectId -EndDate ((Get-Date).AddMonths(6)) -ErrorAction Stop
-                    $global:Secret = $AzureSecret.value
+                    #$AzureTenantID = Get-AzureADTenantDetail
+                    #$global:tenantid = $AzureTenantID.ObjectId
+                    #$AzureSecret = New-AzureADApplicationPasswordCredential -CustomKeyIdentifier PrimarySecret -ObjectId $azureADAppReg.ObjectId -EndDate ((Get-Date).AddMonths(6)) -ErrorAction Stop
+                    #$global:Secret = $AzureSecret.value
 
                     write-host
                     write-host "##########################################################################################" -ForegroundColor Green
@@ -361,14 +361,16 @@ function InsiderRisks_CreateAzureApp
                 }
                 else 
                     {
+                    $appExists_DisplayName = $appExists.DisplayName
+                    $appExists_AppId = $appExists.AppId
                     write-host
                     write-host "##########################################################################################" -ForegroundColor Green
                     write-host "##                                                                                      ##" -ForegroundColor Green
                     write-host "##     WorkshopPLUS: Microsoft 365 Security and Compliance - Microsoft Purview  and     ##" -ForegroundColor Green
                     write-host "##     Activate Microsoft 365 Security and Compliance: Purview Manage Insider Risks     ##" -ForegroundColor Green
                     write-host "##                                                                                      ##" -ForegroundColor Green            
-                    write-host "##   App name  : $appExists.DisplayName                                                            ##" -ForegroundColor Green
-                    write-host "##   App ID    : $appExists.AppId                                   ##" -ForegroundColor Green
+                    write-host "##   App name  : $appExists_DisplayName                                                            ##" -ForegroundColor Green
+                    write-host "##   App ID    : $appExists_AppId                                   ##" -ForegroundColor Green
                     #write-host "##   Tenant ID : $appExists.tenantid                                   ##" -ForegroundColor Green
                     #write-host "##   App Secret: $appExists.secret                           ##" -ForegroundColor Green
                     write-host "##                                                                                      ##" -ForegroundColor Green
