@@ -365,7 +365,7 @@ function InsiderRisks_CreateAzureApp
                     {
                     $appname = $appExists.DisplayName
                     $global:appid = $appExists.AppId
-                    $AzureSecret = New-AzureADApplicationPasswordCredential -CustomKeyIdentifier PrimarySecret -ObjectId $azureADAppReg.ObjectId -EndDate ((Get-Date).AddMonths(6)) -ErrorAction Stop
+                    $AzureSecret = New-AzureADApplicationPasswordCredential -CustomKeyIdentifier PrimarySecret -ObjectId $azureADAppReg.ObjectId -EndDate ((Get-Date).AddMonths(6))
                     $global:Secret = $AzureSecret.value
                     write-host
                     write-host "##########################################################################################" -ForegroundColor Green
