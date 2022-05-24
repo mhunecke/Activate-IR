@@ -361,16 +361,16 @@ function InsiderRisks_CreateAzureApp
                 }
                 else 
                     {
-                    $appExists_DisplayName = $appExists.DisplayName
-                    $appExists_AppId = $appExists.AppId
+                    $appname = $appExists.DisplayName
+                    $global:appid = $appExists.AppId
                     write-host
                     write-host "##########################################################################################" -ForegroundColor Green
                     write-host "##                                                                                      ##" -ForegroundColor Green
                     write-host "##     WorkshopPLUS: Microsoft 365 Security and Compliance - Microsoft Purview  and     ##" -ForegroundColor Green
                     write-host "##     Activate Microsoft 365 Security and Compliance: Purview Manage Insider Risks     ##" -ForegroundColor Green
                     write-host "##                                                                                      ##" -ForegroundColor Green            
-                    write-host "##   App name  : $appExists_DisplayName                                                            ##" -ForegroundColor Green
-                    write-host "##   App ID    : $appExists_AppId                                   ##" -ForegroundColor Green
+                    write-host "##   App name  : $appname                                                            ##" -ForegroundColor Green
+                    write-host "##   App ID    : $global:appid                                   ##" -ForegroundColor Green
                     #write-host "##   Tenant ID : $appExists.tenantid                                   ##" -ForegroundColor Green
                     #write-host "##   App Secret: $appExists.secret                           ##" -ForegroundColor Green
                     write-host "##                                                                                      ##" -ForegroundColor Green
@@ -380,7 +380,7 @@ function InsiderRisks_CreateAzureApp
                     Write-host "When requested, press ENTER to continue." -ForegroundColor Yellow
                     write-host
                         
-                        logWrite 5 $True "Azure App for HR Connector already exists, so this step was skipped."
+                    logWrite 5 $True "Azure App for HR Connector already exists, so this step was skipped."
                     }
         }
         catch 
