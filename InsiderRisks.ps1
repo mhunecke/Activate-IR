@@ -343,7 +343,8 @@ function InsiderRisks_CreateAzureApp
                     #$global:tenantid = $AzureTenantID.ObjectId
                     $AzureSecret = New-AzureADApplicationPasswordCredential -CustomKeyIdentifier PrimarySecret -ObjectId $azureADAppReg.ObjectId -EndDate ((Get-Date).AddMonths(6)) -ErrorAction Stop
                     $global:Secret = $AzureSecret.value
-
+                    $global:Secret | out-file Secret -Encoding utf8 -ErrorAction Stop
+                    $global:Secret | out-file appsecret.txt -Encoding utf8 -Append -ErrorAction Stop
                     write-host
                     write-host "##########################################################################################" -ForegroundColor Green
                     write-host "##                                                                                      ##" -ForegroundColor Green
@@ -363,28 +364,28 @@ function InsiderRisks_CreateAzureApp
                 }
                 else 
                     {
-                    $appname = $appExists.DisplayName
-                    $global:appid = $appExists.AppId
-                    $AzureSecret = New-AzureADApplicationPasswordCredential -CustomKeyIdentifier PrimarySecret -ObjectId $azureADAppReg.ObjectId -EndDate ((Get-Date).AddMonths(6))
-                    $global:Secret = $AzureSecret.value
-                    write-host
-                    write-host "##########################################################################################" -ForegroundColor Green
-                    write-host "##                                                                                      ##" -ForegroundColor Green
-                    write-host "##     WorkshopPLUS: Microsoft 365 Security and Compliance - Microsoft Purview  and     ##" -ForegroundColor Green
-                    write-host "##     Activate Microsoft 365 Security and Compliance: Purview Manage Insider Risks     ##" -ForegroundColor Green
-                    write-host "##                                                                                      ##" -ForegroundColor Green            
-                    write-host "##   App name  : $appname                                                            ##" -ForegroundColor Green
-                    write-host "##   App ID    : $global:appid                                   ##" -ForegroundColor Green
-                    write-host "##   Tenant ID : $appExists.tenantid                                   ##" -ForegroundColor Green
-                    write-host "##   App Secret: $appExists.secret                           ##" -ForegroundColor Green
-                    write-host "##                                                                                      ##" -ForegroundColor Green
-                    write-host "##########################################################################################" -ForegroundColor Green
-                    write-host
-                    Write-host "Return to the lab instructions" -ForegroundColor Yellow
-                    Write-host "When requested, press ENTER to continue." -ForegroundColor Yellow
-                    write-host
-                        
-                    logWrite 5 $True "Azure App for HR Connector already exists, so this step was skipped."
+                        $appname = $appExists.DisplayName
+                        $global:appid = $appExists.AppId
+                        $Secretfile = Import-Csv appsecret.txt -Encoding utf8 -ErrorAction Stop
+                        $global:Secret = $Secretfile.Secret
+                        write-host
+                        write-host "##########################################################################################" -ForegroundColor Green
+                        write-host "##                                                                                      ##" -ForegroundColor Green
+                        write-host "##     WorkshopPLUS: Microsoft 365 Security and Compliance - Microsoft Purview  and     ##" -ForegroundColor Green
+                        write-host "##     Activate Microsoft 365 Security and Compliance: Purview Manage Insider Risks     ##" -ForegroundColor Green
+                        write-host "##                                                                                      ##" -ForegroundColor Green            
+                        write-host "##   App name  : $appname                                                            ##" -ForegroundColor Green
+                        write-host "##   App ID    : $global:appid                                   ##" -ForegroundColor Green
+                        write-host "##   Tenant ID : $global:tenantid                                   ##" -ForegroundColor Green
+                        write-host "##   App Secret: $global:secret                           ##" -ForegroundColor Green
+                        write-host "##                                                                                      ##" -ForegroundColor Green
+                        write-host "##########################################################################################" -ForegroundColor Green
+                        write-host
+                        Write-host "Return to the lab instructions" -ForegroundColor Yellow
+                        Write-host "When requested, press ENTER to continue." -ForegroundColor Yellow
+                        write-host
+                            
+                        logWrite 5 $True "Azure App for HR Connector already exists, so this step was skipped."
                     }
         }
         catch 
