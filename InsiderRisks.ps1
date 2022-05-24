@@ -205,8 +205,12 @@ function ConnectMsol
             }
 }
 
+#######################################################################################
+#########                    I N S I D E R     R I S K S                     ##########
+#######################################################################################
+
 #--------------------------------------------------------
-# Download script (Step 3)
+# Insider Risks - Download script (Step 3)
 #--------------------------------------------------------
 function DownloadScripts
 {
@@ -232,76 +236,26 @@ function DownloadScripts
         }
 }       
 
-#######################################################################################
-#########                    I N S I D E R     R I S K S                     ##########
-#######################################################################################
-
 #--------------------------------------------------------
-# InsiderRisks - Create an Azure App (Step 4)
-#--------------------------------------------------------
-function InsiderRisks_CreateAzureApp
-{
-    try
-        {
-            $AzureADAppReg = New-AzureADApplication -DisplayName HRConnector -AvailableToOtherTenants $false -ErrorAction Stop
-            $appname = $AzureADAppReg.DisplayName
-            $global:appid = $AzureADAppReg.AppID
-            $AzureTenantID = Get-AzureADTenantDetail
-            $global:tenantid = $AzureTenantID.ObjectId
-            $AzureSecret = New-AzureADApplicationPasswordCredential -CustomKeyIdentifier PrimarySecret -ObjectId $azureADAppReg.ObjectId -EndDate ((Get-Date).AddMonths(6)) -ErrorAction Stop
-            $global:Secret = $AzureSecret.value
-
-            write-host
-            write-host "##########################################################################################" -ForegroundColor Green
-            write-host "##                                                                                      ##" -ForegroundColor Green
-            write-host "##     WorkshopPLUS: Microsoft 365 Security and Compliance - Microsoft Purview  and     ##" -ForegroundColor Green
-            write-host "##     Activate Microsoft 365 Security and Compliance: Purview Manage Insider Risks     ##" -ForegroundColor Green
-            write-host "##                                                                                      ##" -ForegroundColor Green            
-            write-host "##   App name  : $appname                                                            ##" -ForegroundColor Green
-            write-host "##   App ID    : $global:appid                                   ##" -ForegroundColor Green
-            write-host "##   Tenant ID : $global:tenantid                                   ##" -ForegroundColor Green
-            write-host "##   App Secret: $global:secret                           ##" -ForegroundColor Green
-            write-host "##                                                                                      ##" -ForegroundColor Green
-            write-host "##########################################################################################" -ForegroundColor Green
-            write-host
-            Write-host "Return to the lab instructions" -ForegroundColor Yellow
-            Write-host "When requested, press ENTER to continue." -ForegroundColor Yellow
-            write-host
-        }
-        catch 
-        {
-            write-Debug $error[0].Exception
-            logWrite 4 $false "Error creating the Azure App for HR Connector."
-            exitScript
-        }
-    if($global:Recovery -eq $false)
-        {
-            logWrite 4 $True "Successfully created the Azure App for HR Connector."
-            $global:nextPhase++
-            Write-Debug "nextPhase set to $global:nextPhase"
-        }
-}
-
-#--------------------------------------------------------
-# InsiderRisks - Create the CSV file (Step 5)
+# InsiderRisks - Create the CSV file (Step 4)
 #--------------------------------------------------------
 function InsiderRisks_CreateCSVFile
 {
-    $CurrentPath = Get-Location
-    write-host
-    write-host "##########################################################################################" -ForegroundColor Green
-    write-host "##                                                                                      ##" -ForegroundColor Green
-    write-host "##     WorkshopPLUS: Microsoft 365 Security and Compliance - Microsoft Purview  and     ##" -ForegroundColor Green
-    write-host "##     Activate Microsoft 365 Security and Compliance: Purview Manage Insider Risks     ##" -ForegroundColor Green
-    write-host "##                                                                                      ##" -ForegroundColor Green            
-    write-host "##   The CSV file was created on:                                                       ##" -ForegroundColor Green
-    write-host "##   $CurrentPath\wks-new-HRConnector.csv       ##" -ForegroundColor Green
-    write-host "##                                                                                      ##" -ForegroundColor Green
-    write-host "##########################################################################################" -ForegroundColor Green
-    write-host
-    Write-host "Return to the lab instructions" -ForegroundColor Yellow
-    Write-host "When requested, press ENTER to continue." -ForegroundColor Yellow
-    write-host
+    #$CurrentPath = Get-Location
+    #write-host
+    #write-host "##########################################################################################" -ForegroundColor Green
+    #write-host "##                                                                                      ##" -ForegroundColor Green
+    #write-host "##     WorkshopPLUS: Microsoft 365 Security and Compliance - Microsoft Purview  and     ##" -ForegroundColor Green
+    #write-host "##     Activate Microsoft 365 Security and Compliance: Purview Manage Insider Risks     ##" -ForegroundColor Green
+    #write-host "##                                                                                      ##" -ForegroundColor Green            
+    #write-host "##   The CSV file was created on:                                                       ##" -ForegroundColor Green
+    #write-host "##   $CurrentPath\wks-new-HRConnector.csv       ##" -ForegroundColor Green
+    #write-host "##                                                                                      ##" -ForegroundColor Green
+    #write-host "##########################################################################################" -ForegroundColor Green
+    #write-host
+    #Write-host "Return to the lab instructions" -ForegroundColor Yellow
+    #Write-host "When requested, press ENTER to continue." -ForegroundColor Yellow
+    #write-host
 
     try 
         {
@@ -353,18 +307,63 @@ function InsiderRisks_CreateCSVFile
                     "Job level changes,$EmailAddress,,,$EffectiveDate,$YearsOnLevel,Level $OldLevel,Level $NewLevel" | out-file $HRConnectorCSVFile -Encoding utf8 -Append -ErrorAction Stop
                     "Performance review,$EmailAddress,,,$EffectiveDate,,,,$PerformanceRemarks,$PerformanceRating" | out-file $HRConnectorCSVFile -Encoding utf8 -Append -ErrorAction Stop
                     "Performance improvement plan,$EmailAddress,,,$EffectiveDate,,,,,,$ImprovementRemarks,$ImprovementRating,"  | out-file $HRConnectorCSVFile -Encoding utf8 -Append -ErrorAction Stop
-                    #$global:Recovery = $false
                 }
         }
         catch 
         {
             write-Debug $error[0].Exception
-            logWrite 5 $false "Error creating the HRConnector.csv file."
+            logWrite 4 $false "Error creating the HRConnector.csv file."
             exitScript
         }
     if($global:Recovery -eq $false)
         {
-            logWrite 5 $True "Successfully created the HRConnector.csv file."
+            logWrite 4 $True "Successfully created the HRConnector.csv file."
+            $global:nextPhase++
+            Write-Debug "nextPhase set to $global:nextPhase"
+        }
+}
+
+#--------------------------------------------------------
+# InsiderRisks - Create an Azure App (Step 5)
+#--------------------------------------------------------
+function InsiderRisks_CreateAzureApp
+{
+    try
+        {
+            $AzureADAppReg = New-AzureADApplication -DisplayName HRConnector -AvailableToOtherTenants $false -ErrorAction Stop
+            $appname = $AzureADAppReg.DisplayName
+            $global:appid = $AzureADAppReg.AppID
+            $AzureTenantID = Get-AzureADTenantDetail
+            $global:tenantid = $AzureTenantID.ObjectId
+            $AzureSecret = New-AzureADApplicationPasswordCredential -CustomKeyIdentifier PrimarySecret -ObjectId $azureADAppReg.ObjectId -EndDate ((Get-Date).AddMonths(6)) -ErrorAction Stop
+            $global:Secret = $AzureSecret.value
+
+            write-host
+            write-host "##########################################################################################" -ForegroundColor Green
+            write-host "##                                                                                      ##" -ForegroundColor Green
+            write-host "##     WorkshopPLUS: Microsoft 365 Security and Compliance - Microsoft Purview  and     ##" -ForegroundColor Green
+            write-host "##     Activate Microsoft 365 Security and Compliance: Purview Manage Insider Risks     ##" -ForegroundColor Green
+            write-host "##                                                                                      ##" -ForegroundColor Green            
+            write-host "##   App name  : $appname                                                            ##" -ForegroundColor Green
+            write-host "##   App ID    : $global:appid                                   ##" -ForegroundColor Green
+            write-host "##   Tenant ID : $global:tenantid                                   ##" -ForegroundColor Green
+            write-host "##   App Secret: $global:secret                           ##" -ForegroundColor Green
+            write-host "##                                                                                      ##" -ForegroundColor Green
+            write-host "##########################################################################################" -ForegroundColor Green
+            write-host
+            Write-host "Return to the lab instructions" -ForegroundColor Yellow
+            Write-host "When requested, press ENTER to continue." -ForegroundColor Yellow
+            write-host
+        }
+        catch 
+        {
+            write-Debug $error[0].Exception
+            logWrite 5 $false "Error creating the Azure App for HR Connector."
+            exitScript
+        }
+    if($global:Recovery -eq $false)
+        {
+            logWrite 5 $True "Successfully created the Azure App for HR Connector."
             $global:nextPhase++
             Write-Debug "nextPhase set to $global:nextPhase"
         }
@@ -426,7 +425,7 @@ $LogPath = "$env:UserProfile\Desktop\SCLabFiles\Scripts\"
 $LogCSV = "$env:UserProfile\Desktop\SCLabFiles\Scripts\InsiderRisks_Log.csv"
 $global:nextPhase = 1
 $global:Recovery = $false
-Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Force
+#Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Force
 
 #------------------------------------------------------------
 # Debug mode
@@ -476,14 +475,13 @@ if($nextPhase -eq 3)
 if($nextPhase -eq 4)
     {
         write-debug "Phase $nextPhase"
-        InsiderRisks_CreateAzureApp
-        $answer = Read-Host "Press ENTER to continue"
+        InsiderRisks_CreateCSVFile
     }
 
 if($nextPhase -eq 5)
     {
         write-debug "Phase $nextPhase"
-        InsiderRisks_CreateCSVFile
+        InsiderRisks_CreateAzureApp
         $answer = Read-Host "Press ENTER to continue"
     }
 
