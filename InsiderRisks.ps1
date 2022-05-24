@@ -1,6 +1,6 @@
 <#
 .Synopsis
-  Pre-configuration for the following titles:
+  Pre-configuration for the following Microsoft Premier offerings:
     1) Activate Microsoft 365 Security and Compliance: Purview Manage Insider Risks
     2) WorkshopPLUS: Microsoft 365 Security and Compliance - Microsoft Purview
 
@@ -126,7 +126,6 @@ function ConnectAzureAD
         {
             Write-Debug "Get-AzureADDirectoryRole -ErrorAction stop"
             $testConnection = Get-AzureADDirectoryRole -ErrorAction stop | Out-Null #if true (Already Connected)
-            #$global:Recovery = $false
         }
         catch
             {
@@ -135,7 +134,6 @@ function ConnectAzureAD
                         write-Debug $error[0].Exception
                         Write-Host "Connecting to Azure AD..."
                         Connect-AzureAD -ErrorAction stop | Out-Null
-                        #$global:Recovery = $false
                     }
                     catch    
                         {
@@ -145,7 +143,6 @@ function ConnectAzureAD
                                     Write-Host "Installing Azure AD PowerShell Module..."
                                     Install-Module AzureAD -Force -AllowClobber
                                     Connect-AzureAD -ErrorAction stop | Out-Null
-                                    #$global:Recovery = $false
                                 }
                                 catch
                                     {
@@ -173,7 +170,6 @@ function ConnectMsol
     {
         Write-Debug "Get-MSOLCompanyInformation -ErrorAction stop"
         $testConnection = Get-MSOLCompanyInformation -ErrorAction stop | Out-Null #if true (Already Connected)
-        #$global:Recovery = $false
     }
     catch
         {
@@ -182,7 +178,6 @@ function ConnectMsol
                     write-Debug $error[0].Exception
                     Write-Host "Connecting to Microsoft Online..."
                     Connect-MSOLService -ErrorAction stop | Out-Null
-                    #$global:Recovery = $false
                 }
                 catch    
                     {
@@ -192,7 +187,6 @@ function ConnectMsol
                                 Write-Host "Installing Microsoft Online PowerShell Module..."
                                 Install-Module MSOnline -Force -AllowClobber -ErrorAction stop | Out-Null
                                 Connect-MSOLService -ErrorAction stop | Out-Null
-                                #$global:Recovery = $false
                             }
                             catch
                                 {
@@ -221,7 +215,7 @@ function DownloadScripts
             #ref.:https://docs.microsoft.com/en-us/microsoft-365/compliance/import-hr-data?view=o365-worldwide#step-4-run-the-sample-script-to-upload-your-hr-data
             write-Debug "Invoke-WebRequest -Uri https://raw.githubusercontent.com/microsoft/m365-compliance-connector-sample-scripts/master/sample_script.ps1 -OutFile $($LogPath)upload_termination_records.ps1 -ErrorAction Stop"
             Invoke-WebRequest -Uri https://raw.githubusercontent.com/microsoft/m365-compliance-connector-sample-scripts/master/sample_script.ps1 -OutFile "$($LogPath)upload_termination_records.ps1" -ErrorAction Stop
-            $global:Recovery = $false
+            $global:Recovery = $false #There no Recover process from here. All the steps below will be executed.
         } 
         catch 
             {
@@ -273,7 +267,6 @@ function InsiderRisks_CreateAzureApp
             Write-host "Return to the lab instructions" -ForegroundColor Yellow
             Write-host "When requested, press ENTER to continue." -ForegroundColor Yellow
             write-host
-            #$global:Recovery = $false
         }
         catch 
         {
@@ -407,7 +400,6 @@ function InsiderRisks_UploadCSV
 
             Set-Location -Path "$env:UserProfile\Desktop\SCLabFiles\Scripts"
             .\upload_termination_records.ps1 -tenantId $tenantId -appId $appId -appSecret $Secret -jobId $ConnectorJobID -FilePath $HRConnectorCSVFile
-
         }
         catch 
         {
@@ -434,6 +426,7 @@ $LogPath = "$env:UserProfile\Desktop\SCLabFiles\Scripts\"
 $LogCSV = "$env:UserProfile\Desktop\SCLabFiles\Scripts\InsiderRisks_Log.csv"
 $global:nextPhase = 1
 $global:Recovery = $false
+Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Force
 
 #------------------------------------------------------------
 # Debug mode
@@ -457,21 +450,6 @@ if(!(Test-Path($logCSV)))
                 # if log already exists, check if we need to recover
                 Write-Debug "Entering Recovery"
                 Recovery
-                #write-host 1 - $nextPhase - $global:Recovery
-                #ConnectAzureAD
-                #write-host 2 - $nextPhase - $global:Recovery
-                #ConnectMSOL
-                #write-host 3 - $nextPhase - $global:Recovery
-                #DownloadScripts
-                #write-host $nextPhase
-                #InsiderRisks_CreateAzureApp
-                #$answer = Read-Host "Press ENTER to continue"
-                #write-host $nextPhase
-                #InsiderRisks_CreateCSVFile
-                #$answer = Read-Host "Press ENTER to continue"
-                #write-host $nextPhase
-                #InsiderRisks_UploadCSV
-                #write-host $nextPhase
             }
 
 #--------------------------------------------------------
