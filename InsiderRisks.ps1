@@ -343,8 +343,8 @@ function InsiderRisks_CreateAzureApp
                     #$global:tenantid = $AzureTenantID.ObjectId
                     $AzureSecret = New-AzureADApplicationPasswordCredential -CustomKeyIdentifier PrimarySecret -ObjectId $azureADAppReg.ObjectId -EndDate ((Get-Date).AddMonths(6)) -ErrorAction Stop
                     $global:Secret = $AzureSecret.value
-                    $global:Secret | out-file Secret -Encoding utf8 -ErrorAction Stop
-                    $global:Secret | out-file appsecret.txt -Encoding utf8 -Append -ErrorAction Stop
+                    "Secret" | out-file _appsecret.txt -Encoding utf8 -ErrorAction Stop
+                    $global:Secret | out-file _appsecret.txt -Encoding utf8 -Append -ErrorAction Stop
                     write-host
                     write-host "##########################################################################################" -ForegroundColor Green
                     write-host "##                                                                                      ##" -ForegroundColor Green
@@ -366,7 +366,7 @@ function InsiderRisks_CreateAzureApp
                     {
                         $appname = $appExists.DisplayName
                         $global:appid = $appExists.AppId
-                        $Secretfile = Import-Csv appsecret.txt -Encoding utf8 -ErrorAction Stop
+                        $Secretfile = Import-Csv _appsecret.txt -Encoding utf8 -ErrorAction Stop
                         $global:Secret = $Secretfile.Secret
                         write-host
                         write-host "##########################################################################################" -ForegroundColor Green
@@ -384,7 +384,6 @@ function InsiderRisks_CreateAzureApp
                         Write-host "Return to the lab instructions" -ForegroundColor Yellow
                         Write-host "When requested, press ENTER to continue." -ForegroundColor Yellow
                         write-host
-                            
                         logWrite 5 $True "Azure App for HR Connector already exists, so this step was skipped."
                     }
         }
@@ -407,13 +406,14 @@ function InsiderRisks_CreateAzureApp
 #--------------------------------------------------------
 function InsiderRisks_UploadCSV
 {
-
     try   
         {
             $ConnectorJobID = Read-Host "Paste the Connector job ID"
             if ($null -eq $ConnectorJobID)
                 {
                     $ConnectorJobID = Read-Host "Paste the Connector job ID"
+                    "JobID" | out-file _jobID.txt -Encoding utf8 -ErrorAction Stop
+                    $ConnectorJobID | out-file _jobID.txt -Encoding utf8 -Append -ErrorAction Stop
                 }
             Write-Host
             write-host "##########################################################################################" -ForegroundColor Green
@@ -422,8 +422,8 @@ function InsiderRisks_UploadCSV
             write-host "##     Activate Microsoft 365 Security and Compliance: Purview Manage Insider Risks     ##" -ForegroundColor Green
             write-host "##                                                                                      ##" -ForegroundColor Green            
             write-host "##   App ID    : $global:appid                                   ##" -ForegroundColor Green
-            #write-host "##   Tenant ID : $global:tenantid                                   ##" -ForegroundColor Green
-            #write-host "##   App Secret: $global:secret                           ##" -ForegroundColor Green
+            write-host "##   Tenant ID : $global:tenantid                                   ##" -ForegroundColor Green
+            write-host "##   App Secret: $global:secret                           ##" -ForegroundColor Green
             write-host "##   JobId     : $ConnectorJobID                                   ##" -ForegroundColor Green
             write-host "##   CSV File  : $global:HRConnectorCSVFile   ##" -ForegroundColor Green
             write-host "##                                                                                      ##" -ForegroundColor Green
