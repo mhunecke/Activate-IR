@@ -332,6 +332,8 @@ function InsiderRisks_CreateAzureApp
         {
             $appExists = $null
             $appExists = Get-AzureADApplication -SearchString "HRConnector"
+            $AzureTenantID = Get-AzureADTenantDetail
+            $global:tenantid = $AzureTenantID.ObjectId
             if ($appExists -eq $null)
                 {
                     $AzureADAppReg = New-AzureADApplication -DisplayName HRConnector -AvailableToOtherTenants $false -ErrorAction Stop
@@ -339,8 +341,8 @@ function InsiderRisks_CreateAzureApp
                     $global:appid = $AzureADAppReg.AppID
                     #$AzureTenantID = Get-AzureADTenantDetail
                     #$global:tenantid = $AzureTenantID.ObjectId
-                    #$AzureSecret = New-AzureADApplicationPasswordCredential -CustomKeyIdentifier PrimarySecret -ObjectId $azureADAppReg.ObjectId -EndDate ((Get-Date).AddMonths(6)) -ErrorAction Stop
-                    #$global:Secret = $AzureSecret.value
+                    $AzureSecret = New-AzureADApplicationPasswordCredential -CustomKeyIdentifier PrimarySecret -ObjectId $azureADAppReg.ObjectId -EndDate ((Get-Date).AddMonths(6)) -ErrorAction Stop
+                    $global:Secret = $AzureSecret.value
 
                     write-host
                     write-host "##########################################################################################" -ForegroundColor Green
@@ -350,8 +352,8 @@ function InsiderRisks_CreateAzureApp
                     write-host "##                                                                                      ##" -ForegroundColor Green            
                     write-host "##   App name  : $appname                                                            ##" -ForegroundColor Green
                     write-host "##   App ID    : $global:appid                                   ##" -ForegroundColor Green
-                    #write-host "##   Tenant ID : $global:tenantid                                   ##" -ForegroundColor Green
-                    #write-host "##   App Secret: $global:secret                           ##" -ForegroundColor Green
+                    write-host "##   Tenant ID : $global:tenantid                                   ##" -ForegroundColor Green
+                    write-host "##   App Secret: $global:secret                           ##" -ForegroundColor Green
                     write-host "##                                                                                      ##" -ForegroundColor Green
                     write-host "##########################################################################################" -ForegroundColor Green
                     write-host
@@ -363,6 +365,8 @@ function InsiderRisks_CreateAzureApp
                     {
                     $appname = $appExists.DisplayName
                     $global:appid = $appExists.AppId
+                    $AzureSecret = New-AzureADApplicationPasswordCredential -CustomKeyIdentifier PrimarySecret -ObjectId $azureADAppReg.ObjectId -EndDate ((Get-Date).AddMonths(6)) -ErrorAction Stop
+                    $global:Secret = $AzureSecret.value
                     write-host
                     write-host "##########################################################################################" -ForegroundColor Green
                     write-host "##                                                                                      ##" -ForegroundColor Green
@@ -371,8 +375,8 @@ function InsiderRisks_CreateAzureApp
                     write-host "##                                                                                      ##" -ForegroundColor Green            
                     write-host "##   App name  : $appname                                                            ##" -ForegroundColor Green
                     write-host "##   App ID    : $global:appid                                   ##" -ForegroundColor Green
-                    #write-host "##   Tenant ID : $appExists.tenantid                                   ##" -ForegroundColor Green
-                    #write-host "##   App Secret: $appExists.secret                           ##" -ForegroundColor Green
+                    write-host "##   Tenant ID : $appExists.tenantid                                   ##" -ForegroundColor Green
+                    write-host "##   App Secret: $appExists.secret                           ##" -ForegroundColor Green
                     write-host "##                                                                                      ##" -ForegroundColor Green
                     write-host "##########################################################################################" -ForegroundColor Green
                     write-host
@@ -417,8 +421,8 @@ function InsiderRisks_UploadCSV
             write-host "##     Activate Microsoft 365 Security and Compliance: Purview Manage Insider Risks     ##" -ForegroundColor Green
             write-host "##                                                                                      ##" -ForegroundColor Green            
             write-host "##   App ID    : $global:appid                                   ##" -ForegroundColor Green
-            write-host "##   Tenant ID : $global:tenantid                                   ##" -ForegroundColor Green
-            write-host "##   App Secret: $global:secret                           ##" -ForegroundColor Green
+            #write-host "##   Tenant ID : $global:tenantid                                   ##" -ForegroundColor Green
+            #write-host "##   App Secret: $global:secret                           ##" -ForegroundColor Green
             write-host "##   JobId     : $ConnectorJobID                                   ##" -ForegroundColor Green
             write-host "##   CSV File  : $global:HRConnectorCSVFile   ##" -ForegroundColor Green
             write-host "##                                                                                      ##" -ForegroundColor Green
