@@ -411,10 +411,10 @@ function InsiderRisks_UploadCSV
             $ConnectorJobID = Read-Host "Paste the Connector job ID"
             if ($null -eq $ConnectorJobID)
                 {
-                    $ConnectorJobID = Read-Host "Paste the Connector job ID"
-                    "JobID" | out-file _jobID.txt -Encoding utf8 -ErrorAction Stop
                     $ConnectorJobID | out-file _jobID.txt -Encoding utf8 -Append -ErrorAction Stop
                 }
+            $ConnectorJobID = Read-Host "Paste the Connector job ID"
+            "JobID" | out-file _jobID.txt -Encoding utf8 -ErrorAction Stop
             Write-Host
             write-host "##########################################################################################" -ForegroundColor Green
             write-host "##                                                                                      ##" -ForegroundColor Green
