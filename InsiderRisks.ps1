@@ -126,7 +126,7 @@ function ConnectAzureAD
         {
             Write-Debug "Get-AzureADDirectoryRole -ErrorAction stop"
             $testConnection = Get-AzureADDirectoryRole -ErrorAction stop | Out-Null #if true (Already Connected)
-            $global:Recovery = $false
+            #$global:Recovery = $false
         }
         catch
             {
@@ -135,7 +135,7 @@ function ConnectAzureAD
                         write-Debug $error[0].Exception
                         Write-Host "Connecting to Azure AD..."
                         Connect-AzureAD -ErrorAction stop | Out-Null
-                        $global:Recovery = $false
+                        #$global:Recovery = $false
                     }
                     catch    
                         {
@@ -145,7 +145,7 @@ function ConnectAzureAD
                                     Write-Host "Installing Azure AD PowerShell Module..."
                                     Install-Module AzureAD -Force -AllowClobber
                                     Connect-AzureAD -ErrorAction stop | Out-Null
-                                    $global:Recovery = $false
+                                    #$global:Recovery = $false
                                 }
                                 catch
                                     {
@@ -173,7 +173,7 @@ function ConnectMsol
     {
         Write-Debug "Get-MSOLCompanyInformation -ErrorAction stop"
         $testConnection = Get-MSOLCompanyInformation -ErrorAction stop | Out-Null #if true (Already Connected)
-        $global:Recovery = $false
+        #$global:Recovery = $false
     }
     catch
         {
@@ -182,7 +182,7 @@ function ConnectMsol
                     write-Debug $error[0].Exception
                     Write-Host "Connecting to Microsoft Online..."
                     Connect-MSOLService -ErrorAction stop | Out-Null
-                    $global:Recovery = $false
+                    #$global:Recovery = $false
                 }
                 catch    
                     {
@@ -192,7 +192,7 @@ function ConnectMsol
                                 Write-Host "Installing Microsoft Online PowerShell Module..."
                                 Install-Module MSOnline -Force -AllowClobber -ErrorAction stop | Out-Null
                                 Connect-MSOLService -ErrorAction stop | Out-Null
-                                $global:Recovery = $false
+                                #$global:Recovery = $false
                             }
                             catch
                                 {
@@ -273,7 +273,7 @@ function InsiderRisks_CreateAzureApp
             Write-host "Return to the lab instructions" -ForegroundColor Yellow
             Write-host "When requested, press ENTER to continue." -ForegroundColor Yellow
             write-host
-            $global:Recovery = $false
+            #$global:Recovery = $false
         }
         catch 
         {
@@ -360,7 +360,7 @@ function InsiderRisks_CreateCSVFile
                     "Job level changes,$EmailAddress,,,$EffectiveDate,$YearsOnLevel,Level $OldLevel,Level $NewLevel" | out-file $HRConnectorCSVFile -Encoding utf8 -Append -ErrorAction Stop
                     "Performance review,$EmailAddress,,,$EffectiveDate,,,,$PerformanceRemarks,$PerformanceRating" | out-file $HRConnectorCSVFile -Encoding utf8 -Append -ErrorAction Stop
                     "Performance improvement plan,$EmailAddress,,,$EffectiveDate,,,,,,$ImprovementRemarks,$ImprovementRating,"  | out-file $HRConnectorCSVFile -Encoding utf8 -Append -ErrorAction Stop
-                    $global:Recovery = $false
+                    #$global:Recovery = $false
                 }
         }
         catch 
@@ -407,7 +407,7 @@ function InsiderRisks_UploadCSV
 
             Set-Location -Path "$env:UserProfile\Desktop\SCLabFiles\Scripts"
             .\upload_termination_records.ps1 -tenantId $tenantId -appId $appId -appSecret $Secret -jobId $ConnectorJobID -FilePath $HRConnectorCSVFile
-            $global:Recovery = $false
+
         }
         catch 
         {
@@ -417,7 +417,7 @@ function InsiderRisks_UploadCSV
         }
     if($global:Recovery -eq $false)
         {
-            logWrite 6 $True "Successfully creating the HRConnector.csv file."
+            logWrite 6 $True "Successfully uploading the HRConnector.csv file."
             $global:nextPhase++
             Write-Debug "nextPhase set to $global:nextPhase"
         }
@@ -443,7 +443,7 @@ if($debug)
 {
     write-debug "Debug Enabled"
     $DebugPreference = "Continue"
-    Start-Transcript -Path "$($LogPath)download-debug.txt"
+   Start-Transcript -Path "$($LogPath)download-debug.txt"
 }
 
 if(!(Test-Path($logCSV)))
@@ -457,21 +457,21 @@ if(!(Test-Path($logCSV)))
                 # if log already exists, check if we need to recover
                 Write-Debug "Entering Recovery"
                 Recovery
-                write-host $nextPhase
-                ConnectAzureAD
-                write-host $nextPhase
-                ConnectMSOL
-                write-host $nextPhase
-                DownloadScripts
-                write-host $nextPhase
-                InsiderRisks_CreateAzureApp
-                $answer = Read-Host "Press ENTER to continue"
-                write-host $nextPhase
-                InsiderRisks_CreateCSVFile
-                $answer = Read-Host "Press ENTER to continue"
-                write-host $nextPhase
-                InsiderRisks_UploadCSV
-                write-host $nextPhase
+                #write-host 1 - $nextPhase - $global:Recovery
+                #ConnectAzureAD
+                #write-host 2 - $nextPhase - $global:Recovery
+                #ConnectMSOL
+                #write-host 3 - $nextPhase - $global:Recovery
+                #DownloadScripts
+                #write-host $nextPhase
+                #InsiderRisks_CreateAzureApp
+                #$answer = Read-Host "Press ENTER to continue"
+                #write-host $nextPhase
+                #InsiderRisks_CreateCSVFile
+                #$answer = Read-Host "Press ENTER to continue"
+                #write-host $nextPhase
+                #InsiderRisks_UploadCSV
+                #write-host $nextPhase
             }
 
 #--------------------------------------------------------
@@ -515,4 +515,10 @@ if($nextPhase -eq 6)
         InsiderRisks_UploadCSV
     }
 
-write-host "Configuration completed" 
+if($nextPhase -eq 7)
+    {
+        write-debug "Phase $nextPhase"
+        write-host "Configuration completed"
+        logWrite 7 $true "Configuration completed"
+        exitScript
+    }
