@@ -241,22 +241,6 @@ function DownloadScripts
 #--------------------------------------------------------
 function InsiderRisks_CreateCSVFile
 {
-    #$CurrentPath = Get-Location
-    #write-host
-    #write-host "##########################################################################################" -ForegroundColor Green
-    #write-host "##                                                                                      ##" -ForegroundColor Green
-    #write-host "##     WorkshopPLUS: Microsoft 365 Security and Compliance - Microsoft Purview  and     ##" -ForegroundColor Green
-    #write-host "##     Activate Microsoft 365 Security and Compliance: Purview Manage Insider Risks     ##" -ForegroundColor Green
-    #write-host "##                                                                                      ##" -ForegroundColor Green            
-    #write-host "##   The CSV file was created on:                                                       ##" -ForegroundColor Green
-    #write-host "##   $CurrentPath\wks-new-HRConnector.csv       ##" -ForegroundColor Green
-    #write-host "##                                                                                      ##" -ForegroundColor Green
-    #write-host "##########################################################################################" -ForegroundColor Green
-    #write-host
-    #Write-host "Return to the lab instructions" -ForegroundColor Yellow
-    #Write-host "When requested, press ENTER to continue." -ForegroundColor Yellow
-    #write-host
-
     try 
         {
             $global:HRConnectorCSVFile = "$($LogPath)HRConnector.csv"
@@ -408,6 +392,7 @@ function InsiderRisks_UploadCSV
 {
     try   
         {
+            Write-Host
             $ConnectorJobID = Read-Host "Paste the Connector job ID"
             if ($null -eq $ConnectorJobID)
                 {
@@ -429,7 +414,6 @@ function InsiderRisks_UploadCSV
             write-host "##                                                                                      ##" -ForegroundColor Green
             write-host "##########################################################################################" -ForegroundColor Green
             Write-Host
-
             Set-Location -Path "$env:UserProfile\Desktop\SCLabFiles\Scripts"
             .\upload_termination_records.ps1 -tenantId $tenantId -appId $appId -appSecret $Secret -jobId $ConnectorJobID -FilePath $HRConnectorCSVFile
         }
